@@ -1,18 +1,16 @@
+
 package ca.gbc.comp3074.diamantino_nicole.restaurantguide.ui.screens
+
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import ca.gbc.comp3074.diamantino_nicole.restaurantguide.model.Restaurant
 
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.model.Restaurant
 
 @Composable
 fun HomeScreen(
@@ -24,17 +22,52 @@ fun HomeScreen(
     restaurants: List<Restaurant> = emptyList()
 ){
 
+    // Stores the text typed in the search bar
     var searchQuery by remember { mutableStateOf("") }
 
+    // Sample restaurants using the team's Restaurant model
+    val samplerestaurants = listOf(
+        Restaurant(
+            restaurantId = 1L,
+            name = "Bella Italia",
+            address = "123 King Street, Toronto",
+            tags = "Italian, Pasta",
+            rating = 5f
+        ),
+        Restaurant(
+            restaurantId = 2L,
+            name = "Sushi House",
+            address = "456 Queen Street, Toronto",
+            tags = "Japanese, Sushi",
+            rating = 4f
+        ),
+        Restaurant(
+            restaurantId = 3L,
+            name = "Green Garden",
+            address = "789 Bloor Street, Toronto",
+            tags = "Vegetarian",
+            rating = 5f
+        )
+    )
+    // Combine sample restaurants with saved restaurants
+    val allRestaurants = sampleRestaurants + restaurants
+  
+    // Filter restaurants by name or tags
+    val filteredRestaurants = allrestaurants.filter { restaurant ->
+        restaurant.name.contains(searchQuery, ignoreCase = true) ||
+                restaurant.tags.contains(searchQuery, ignoreCase = true)
+    }
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-
+        verticalArrangement = Arrangement.Top
     ) {
 
+        // Page title
         Text(
             text = "Restaurant Guide",
             style = MaterialTheme.typography.headlineMedium
@@ -42,6 +75,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Search bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -52,6 +86,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Restaurant list title
         Text(
             text = "My Restaurants",
             style = MaterialTheme.typography.titleLarge
@@ -59,73 +94,63 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        RestaurantCard(
-            name = "Bella Italia",
-            cuisine = "Italian",
-            address = "123 King Street, Toronto",
-            rating = 5,
-            onClick = { onRestaurantClick("Bella Italia") }
+        // Display restaurants matching the search
+        if (filteredRestaurants.isEmpty()) {
 
-        )
-
-        RestaurantCard(
-            name = "Sushi House",
-            cuisine = "Japanese",
-            address = "456 Queen Street, Toronto",
-            rating = 4,
-            onClick = { onRestaurantClick("Sushi House") }
-        )
-
-        RestaurantCard(
-            name = "Green Garden",
-            cuisine = "Vegetarian",
-            address = "789 Bloor Street, Toronto",
-            rating = 5,
-            onClick = { onRestaurantClick("Green Garden") }
-        )
-        restaurants.forEach { restaurant ->
-            RestaurantCard(
-                name = restaurant.name,
-                cuisine = restaurant.tags,
-                address = restaurant.address,
-                rating = restaurant.rating.toInt(),
-                onClick = {onRestaurantClick(restaurant.name)}
-
+            Text(
+                text = "No restaurants found.",
+                style = MaterialTheme.typography.bodyMedium
             )
+
+        } else {
+
+            filteredRestaurants.forEach { restaurant ->
+
+                RestaurantCard(
+                    name = restaurant.name,
+                    cuisine = restaurant.tags,
+                    address = restaurant.address,
+                    rating = restaurant.rating.toInt(),
+                    onClick = {
+                        onRestaurantClick(restaurant.name)
+                    }
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // Add Restaurant button
         Button(
-            onClick = {
-                onAddRestaurantClick()
-            },
+            onClick = onAddRestaurantClick,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Add Restaurant")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // About Us button
         Button(
-            onClick = onAboutClick
-        )
-        {
+            onClick = onAboutClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("About Us")
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Map & Directions button
         Button(
-            onClick = onMapClick
+            onClick = onMapClick,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Map & Directions")
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
+// Restaurant Card
 @Composable
 fun RestaurantCard(
     name: String,
@@ -133,28 +158,44 @@ fun RestaurantCard(
     address: String,
     rating: Int,
     onClick: () -> Unit
-
 ) {
+
     Card(
-            onClick = onClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 6.dp)
-        ) {
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+
             Text(
                 text = name,
                 style = MaterialTheme.typography.titleMedium
             )
 
-            Text(text = cuisine)
-            Text(text = address)
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "★".repeat(rating) +
-                        "☆".repeat(5 - rating)
+                text = cuisine,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = address,
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Display restaurant rating as stars
+            val safeRating = rating.coerceIn(0, 5)
+
+            Text(
+                text = "★".repeat(safeRating) +
+                        "☆".repeat(5 - safeRating)
             )
         }
     }
