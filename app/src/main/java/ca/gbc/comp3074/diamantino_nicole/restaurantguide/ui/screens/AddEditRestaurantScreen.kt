@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +32,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.data.RestaurantDataStorage
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.data.RestaurantDatabase
 import ca.gbc.comp3074.diamantino_nicole.restaurantguide.model.Restaurant
+import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @Preview(showBackground = true)
 @Composable
@@ -48,6 +53,11 @@ fun AddEditRestaurantScreen(){
     var tags by rememberSaveable() { mutableStateOf("") }
     var rating by remember() { mutableIntStateOf(0) }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val restaurantStorage = remember((context)) {
+        RestaurantDatabase.getDatabase(context).restaurantDataStorage()
+    }
+
 
     Column(
         modifier = Modifier
@@ -130,12 +140,23 @@ fun AddEditRestaurantScreen(){
                         tags = tags,
                         rating = rating.toFloat()
                     )
+
+                    coroutineScope.launch {
+                        try {
+                            restaurantStorage.addRestaurant(restaurant)
+
+                            Toast.makeText(
+                                context, "Restaurant saved successfully!", Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (e: Exception) {
+                            Log.e("RestaurantGuide", "Error saving restaurant", e)
+
+                            Toast.makeText(context, "Error saving restaurant", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                     Log.d("RestaurantGuide", restaurant.toString())
 
-                    Toast.makeText(
-                        context, "Restaurant information is valid!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
                 }
             },
             modifier = Modifier.fillMaxWidth()
