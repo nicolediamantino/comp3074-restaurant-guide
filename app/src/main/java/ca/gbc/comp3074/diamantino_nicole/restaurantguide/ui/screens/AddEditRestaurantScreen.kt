@@ -45,13 +45,19 @@ internal fun AddEditRestaurantPreview(){
 }
 
 @Composable
-fun AddEditRestaurantScreen(){
-    var restaurantName by rememberSaveable() { mutableStateOf("") }
-    var address by rememberSaveable() { mutableStateOf("") }
-    var phone by rememberSaveable() { mutableStateOf("") }
-    var description by rememberSaveable() { mutableStateOf("") }
-    var tags by rememberSaveable() { mutableStateOf("") }
-    var rating by remember() { mutableIntStateOf(0) }
+fun AddEditRestaurantScreen(restaurantToEdit: Restaurant? = null) {
+    var restaurantName by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.name ?: "") }
+    var address by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.address?: "") }
+    var phone by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.phoneNo?: "") }
+    var description by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.description?: "") }
+    var tags by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.tags?: "") }
+    var rating by remember(restaurantToEdit?.restaurantId)
+    { mutableIntStateOf(restaurantToEdit?.rating?.toInt()?: 0) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val restaurantStorage = remember((context)) {
@@ -133,6 +139,7 @@ fun AddEditRestaurantScreen(){
                     ).show()
                 } else {
                     val restaurant = Restaurant(
+                        restaurantId = restaurantToEdit?.restaurantId?: 0L,
                         name = restaurantName,
                         address = address,
                         phoneNo = phone,
@@ -143,10 +150,16 @@ fun AddEditRestaurantScreen(){
 
                     coroutineScope.launch {
                         try {
-                            restaurantStorage.addRestaurant(restaurant)
-
+                            if(restaurantToEdit == null){
+                                restaurantStorage.addRestaurant(restaurant)
+                            } else {
+                                restaurantStorage.editRestaurant(restaurant)
+                            }
                             Toast.makeText(
-                                context, "Restaurant saved successfully!", Toast.LENGTH_SHORT
+                                context,
+                                if(restaurantToEdit == null) "Restaurant saved successfully!"
+                                else "Restaurant updated successfully!",
+                                Toast.LENGTH_SHORT
                             ).show()
                         } catch (e: Exception) {
                             Log.e("RestaurantGuide", "Error saving restaurant", e)

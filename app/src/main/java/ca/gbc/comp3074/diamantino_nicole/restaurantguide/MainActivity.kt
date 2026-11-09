@@ -16,6 +16,8 @@ import ca.gbc.comp3074.diamantino_nicole.restaurantguide.ui.screens.RestaurantDe
 import ca.gbc.comp3074.diamantino_nicole.restaurantguide.ui.theme.RestaurantGuideTheme
 import ca.gbc.comp3074.diamantino_nicole.restaurantguide.ui.screens.AddEditRestaurantScreen
 import ca.gbc.comp3074.diamantino_nicole.restaurantguide.ui.screens.MapScreen
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.data.RestaurantDatabase
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.model.Restaurant
 
 class MainActivity : ComponentActivity() {
 
@@ -29,6 +31,11 @@ class MainActivity : ComponentActivity() {
                     var currentScreen by remember {
                         mutableStateOf("Home")
                     }
+                    val restaurantStorage = remember {
+                        RestaurantDatabase.getDatabase(applicationContext).restaurantDataStorage()
+                    }
+                    val restaurants by restaurantStorage.getAllRestaurants()
+                        .collectAsState(initial = emptyList<Restaurant>())
 
 
                     Scaffold(
@@ -41,6 +48,9 @@ class MainActivity : ComponentActivity() {
                         ) {var selectedRestaurant by remember {
                             mutableStateOf("Bella Italia")
                         }
+                          val restaurantToEdit = restaurants.find {
+                              it.name == selectedRestaurant
+                          }
                             when (currentScreen) {
                                 "Home" -> HomeScreen(
                                      onAboutClick = {
@@ -55,7 +65,8 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onAddRestaurantClick = {
                                            currentScreen = "add"
-                                        }
+                                        },
+                                    restaurants = restaurants
                                 )
                                         "About" -> AboutScreen(
                                             onBack = { currentScreen = "Home"
@@ -72,11 +83,13 @@ class MainActivity : ComponentActivity() {
                                     restaurantName = selectedRestaurant,
                                     onBackClick = {
                                         currentScreen = "Home"
-
-
+                                    },
+                                    onEditClick = {
+                                        currentScreen = "edit"
                                     }
                                 )
                                 "add" -> AddEditRestaurantScreen()
+                                "edit" -> AddEditRestaurantScreen(restaurantToEdit = restaurantToEdit)
                             }
                         }
                     }

@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.model.Restaurant
 
 
 @Composable
@@ -19,8 +20,9 @@ fun HomeScreen(
     onRestaurantClick: (String) -> Unit,
     onAboutClick: () -> Unit,
     onMapClick: () -> Unit,
-    onAddRestaurantClick: () -> Unit
-) {
+    onAddRestaurantClick: () -> Unit,
+    restaurants: List<Restaurant> = emptyList()
+){
 
     var searchQuery by remember { mutableStateOf("") }
 
@@ -81,6 +83,16 @@ fun HomeScreen(
             rating = 5,
             onClick = { onRestaurantClick("Green Garden") }
         )
+        restaurants.forEach { restaurant ->
+            RestaurantCard(
+                name = restaurant.name,
+                cuisine = restaurant.tags,
+                address = restaurant.address,
+                rating = restaurant.rating.toInt(),
+                onClick = {onRestaurantClick(restaurant.name)}
+
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

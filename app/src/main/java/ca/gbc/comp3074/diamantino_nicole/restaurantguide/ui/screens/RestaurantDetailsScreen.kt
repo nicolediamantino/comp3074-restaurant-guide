@@ -10,7 +10,8 @@ import androidx.compose.ui.unit.dp
 
 fun RestaurantDetailsScreen(
     restaurantName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEditClick: () -> Unit = {}
 ) {
     val address = when (restaurantName) {
         "Bella Italia" -> "123 King Street, Toronto"
@@ -67,7 +68,7 @@ fun RestaurantDetailsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(onClick = {}) {
+        Button(onClick = onEditClick) {
             Text("Edit Restaurant")
         }
 
