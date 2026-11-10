@@ -26,7 +26,7 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     // Sample restaurants using the team's Restaurant model
-    val samplerestaurants = listOf(
+    val sampleRestaurants = listOf(
         Restaurant(
             restaurantId = 1L,
             name = "Bella Italia",
@@ -53,7 +53,7 @@ fun HomeScreen(
     val allRestaurants = sampleRestaurants + restaurants
   
     // Filter restaurants by name or tags
-    val filteredRestaurants = allrestaurants.filter { restaurant ->
+    val filteredRestaurants = allRestaurants.filter { restaurant ->
         restaurant.name.contains(searchQuery, ignoreCase = true) ||
                 restaurant.tags.contains(searchQuery, ignoreCase = true)
     }
