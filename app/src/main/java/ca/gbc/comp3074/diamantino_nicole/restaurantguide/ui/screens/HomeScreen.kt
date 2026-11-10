@@ -17,14 +17,15 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onRestaurantClick: (String) -> Unit,
     onAboutClick: () -> Unit,
-    onAddRestaurantClick: () -> Unit
+    onAddRestaurantClick: () -> Unit,
+    restaurants: List<Restaurant> = emptyList()
 ) {
 
     // Stores the text typed in the search bar
     var searchQuery by remember { mutableStateOf("") }
 
     // Sample restaurants using the team's Restaurant model
-    val restaurants = listOf(
+    val sampleRestaurants = listOf(
         Restaurant(
             restaurantId = 1L,
             name = "Bella Italia",
@@ -48,8 +49,11 @@ fun HomeScreen(
         )
     )
 
+    // Combine sample restaurants with saved restaurants
+    val allRestaurants = sampleRestaurants + restaurants
+
     // Filter restaurants by name or tags
-    val filteredRestaurants = restaurants.filter { restaurant ->
+    val filteredRestaurants = allRestaurants.filter { restaurant ->
         restaurant.name.contains(searchQuery, ignoreCase = true) ||
                 restaurant.tags.contains(searchQuery, ignoreCase = true)
     }
@@ -133,9 +137,8 @@ fun HomeScreen(
         ) {
             Text("About Us")
         }
+
         Spacer(modifier = Modifier.height(12.dp))
-
-
     }
 }
 

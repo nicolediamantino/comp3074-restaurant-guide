@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +32,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.data.RestaurantDataStorage
+import ca.gbc.comp3074.diamantino_nicole.restaurantguide.data.RestaurantDatabase
 import ca.gbc.comp3074.diamantino_nicole.restaurantguide.model.Restaurant
+import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @Preview(showBackground = true)
 @Composable
@@ -40,14 +45,25 @@ internal fun AddEditRestaurantPreview(){
 }
 
 @Composable
-fun AddEditRestaurantScreen(){
-    var restaurantName by rememberSaveable() { mutableStateOf("") }
-    var address by rememberSaveable() { mutableStateOf("") }
-    var phone by rememberSaveable() { mutableStateOf("") }
-    var description by rememberSaveable() { mutableStateOf("") }
-    var tags by rememberSaveable() { mutableStateOf("") }
-    var rating by remember() { mutableIntStateOf(0) }
+fun AddEditRestaurantScreen(restaurantToEdit: Restaurant? = null) {
+    var restaurantName by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.name ?: "") }
+    var address by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.address?: "") }
+    var phone by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.phoneNo?: "") }
+    var description by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.description?: "") }
+    var tags by rememberSaveable(restaurantToEdit?.restaurantId)
+    { mutableStateOf(restaurantToEdit?.tags?: "") }
+    var rating by remember(restaurantToEdit?.restaurantId)
+    { mutableIntStateOf(restaurantToEdit?.rating?.toInt()?: 0) }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val restaurantStorage = remember((context)) {
+        RestaurantDatabase.getDatabase(context).restaurantDataStorage()
+    }
+
 
     Column(
         modifier = Modifier
@@ -123,6 +139,7 @@ fun AddEditRestaurantScreen(){
                     ).show()
                 } else {
                     val restaurant = Restaurant(
+                        restaurantId = restaurantToEdit?.restaurantId?: 0L,
                         name = restaurantName,
                         address = address,
                         phoneNo = phone,
@@ -130,12 +147,29 @@ fun AddEditRestaurantScreen(){
                         tags = tags,
                         rating = rating.toFloat()
                     )
+
+                    coroutineScope.launch {
+                        try {
+                            if(restaurantToEdit == null){
+                                restaurantStorage.addRestaurant(restaurant)
+                            } else {
+                                restaurantStorage.editRestaurant(restaurant)
+                            }
+                            Toast.makeText(
+                                context,
+                                if(restaurantToEdit == null) "Restaurant saved successfully!"
+                                else "Restaurant updated successfully!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (e: Exception) {
+                            Log.e("RestaurantGuide", "Error saving restaurant", e)
+
+                            Toast.makeText(context, "Error saving restaurant", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                     Log.d("RestaurantGuide", restaurant.toString())
 
-                    Toast.makeText(
-                        context, "Restaurant information is valid!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
                 }
             },
             modifier = Modifier.fillMaxWidth()
