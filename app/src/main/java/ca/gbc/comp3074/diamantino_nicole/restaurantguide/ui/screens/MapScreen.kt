@@ -14,14 +14,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun MapScreen(
+    restaurantName: String,
     onBack :() -> Unit
 ) {
+
+    val address = when (restaurantName) {
+        "Bella Italia" -> "123 King Street, Toronto"
+        "Sushi House" -> "456 Queen Street, Toronto"
+        "Green Garden" -> "789 Bloor Street, Toronto"
+        else -> "Address unavailable"
+    }
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -36,7 +45,7 @@ fun MapScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Restaurants address will appear here",
+            text = "$restaurantName\n$address",
             fontSize = 16.sp
         )
 

@@ -17,7 +17,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onRestaurantClick: (String) -> Unit,
     onAboutClick: () -> Unit,
-    onMapClick: () -> Unit,
     onAddRestaurantClick: () -> Unit
 ) {
 
@@ -134,16 +133,9 @@ fun HomeScreen(
         ) {
             Text("About Us")
         }
-
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Map & Directions button
-        Button(
-            onClick = onMapClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Map & Directions")
-        }
+
     }
 }
 

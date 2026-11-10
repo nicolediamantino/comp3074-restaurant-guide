@@ -23,31 +23,29 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-            setContent {
-                RestaurantGuideTheme {
+        setContent {
+            RestaurantGuideTheme {
 
-                    var currentScreen by remember {
-                        mutableStateOf("Home")
-                    }
+                var currentScreen by remember {
+                    mutableStateOf("Home")
+                }
 
-
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize()
-                    ) { innerPadding ->
-
-                        Box(
-                            modifier = Modifier
-                                .padding(innerPadding)
-                        ) {var selectedRestaurant by remember {
+                        var selectedRestaurant by remember {
                             mutableStateOf("Bella Italia")
                         }
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                    ) {
+
                             when (currentScreen) {
                                 "Home" -> HomeScreen(
                                      onAboutClick = {
                                         currentScreen = "About"
-                                    }, //changes to about screen
-                                      onMapClick = {
-                                         currentScreen = "Map"
                                      },
                                     onRestaurantClick = { restaurantName ->
                                         selectedRestaurant = restaurantName
@@ -60,30 +58,36 @@ class MainActivity : ComponentActivity() {
                                         "About" -> AboutScreen(
                                             onBack = { currentScreen = "Home"
                                             }
-                                        )
-
-                                        "Map" -> MapScreen(
-                                            onBack = { currentScreen = "Home"
-                                            } //back to home
-                                        )
-
-
-                                "Details" -> RestaurantDetailsScreen(
-                                    restaurantName = selectedRestaurant,
-                                    onBackClick = {
-                                        currentScreen = "Home"
+                                        ) //changes to map screen
+                            "Details" -> RestaurantDetailsScreen(
+                                restaurantName = selectedRestaurant,
+                                onBackClick = {
+                                    currentScreen = "Home"
+                                },
+                                onMapClick = {
+                                    currentScreen = "Map"
+                                }
+                            )
 
 
-                                    }
+                            "Map" -> MapScreen(
+                                restaurantName = selectedRestaurant,
+                                onBack = {
+                                    currentScreen = "Details"
+
+                                }
+
                                 )
                                 "add" -> AddEditRestaurantScreen()
                             }
+
                         }
                     }
                 }
             }
+        }
     }
-}
+
 
 
 
