@@ -1,18 +1,24 @@
+
 package ca.gbc.comp3074.diamantino_nicole.restaurantguide.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @Composable
-
 fun RestaurantDetailsScreen(
     restaurantName: String,
     onBackClick: () -> Unit,
-    onEditClick: () -> Unit = {}
+    onEditClick: () -> Unit = {},
+    onMapClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
     val address = when (restaurantName) {
         "Bella Italia" -> "123 King Street, Toronto"
         "Sushi House" -> "456 Queen Street, Toronto"
@@ -47,6 +53,7 @@ fun RestaurantDetailsScreen(
         "Green Garden" -> 5
         else -> 0
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,11 +83,20 @@ fun RestaurantDetailsScreen(
             Text("Delete Restaurant")
         }
 
-        Button(onClick = {}) {
+        Button(
+            onClick = {
+                val mapUrl = Uri.parse(
+                    "https://www.google.com/maps/search/?api=1&query=" +
+                        Uri.encode(address)
+                )
+                val intent = Intent(Intent.ACTION_VIEW, mapUrl)
+                context.startActivity(intent)
+            }
+        ) {
             Text("View Map")
         }
 
-        Button(onClick = {}) {
+        Button(onClick = onMapClick) {
             Text("Get Directions")
         }
 

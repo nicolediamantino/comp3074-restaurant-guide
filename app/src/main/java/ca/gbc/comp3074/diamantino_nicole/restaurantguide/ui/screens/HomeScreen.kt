@@ -17,10 +17,9 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onRestaurantClick: (String) -> Unit,
     onAboutClick: () -> Unit,
-    onMapClick: () -> Unit,
     onAddRestaurantClick: () -> Unit,
     restaurants: List<Restaurant> = emptyList()
-){
+) {
 
     // Stores the text typed in the search bar
     var searchQuery by remember { mutableStateOf("") }
@@ -49,9 +48,10 @@ fun HomeScreen(
             rating = 5f
         )
     )
+
     // Combine sample restaurants with saved restaurants
     val allRestaurants = sampleRestaurants + restaurants
-  
+
     // Filter restaurants by name or tags
     val filteredRestaurants = allRestaurants.filter { restaurant ->
         restaurant.name.contains(searchQuery, ignoreCase = true) ||
@@ -139,14 +139,6 @@ fun HomeScreen(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-
-        // Map & Directions button
-        Button(
-            onClick = onMapClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Map & Directions")
-        }
     }
 }
 
